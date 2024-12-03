@@ -1,0 +1,136 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\huge\bfseries Predator-Prey Simulation Project Report\par}
+    \vspace{1.5cm}
+    {\Large\itshape Your Name\par}
+    \vfill
+    {\large \today\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section*{Abstract}
+\addcontentsline{toc}{section}{Abstract}
+This report presents a detailed overview of a Predator-Prey Simulation project implemented using Python. The simulation models the dynamics of a predator-prey ecosystem using a grid-based environment, allowing for interactive visualization and analysis of population changes over time. The project includes both an interactive simulation with a graphical interface and a script for generating phase diagrams based on multiple simulation runs.
+
+\section{Introduction}
+The predator-prey relationship is a fundamental concept in ecology, illustrating how populations of two species interact over time. This project aims to simulate these dynamics using computational methods to provide insights into how initial conditions affect long-term outcomes such as extinction or coexistence.
+
+\section{Simulation Overview}
+
+\subsection{Interactive Simulation}
+The interactive simulation allows users to:
+
+\begin{itemize}
+    \item Adjust initial populations of prey and predators.
+    \item Control simulation speed.
+    \item Observe real-time interactions on a grid.
+    \item View live graphs of population changes.
+\end{itemize}
+
+\subsection{Phase Diagram Generation}
+A separate script runs multiple simulations across varying initial conditions to generate a phase diagram. This diagram visually represents regions where different outcomes occur, such as:
+
+\begin{itemize}
+    \item All prey dying.
+    \item All predators dying.
+    \item Long-term coexistence.
+\end{itemize}
+
+\section{Implementation Details}
+
+\subsection{Programming Language and Libraries}
+The project is implemented in Python 3 and utilizes the following libraries:
+
+\begin{itemize}
+    \item \textbf{Pygame}: For the graphical user interface and visualization.
+    \item \textbf{NumPy}: For numerical computations.
+    \item \textbf{Matplotlib}: For plotting graphs and phase diagrams.
+    \item \textbf{Tqdm}: For displaying progress bars in the terminal.
+\end{itemize}
+
+\subsection{Code Structure}
+The codebase consists of two main scripts:
+
+\begin{enumerate}
+    \item \texttt{predator\_prey\_simulation.py}: Contains the interactive simulation.
+    \item \texttt{predator\_prey\_phase\_diagram.py}: Generates the phase diagram by running multiple simulations.
+\end{enumerate}
+
+\subsection{Key Components}
+\begin{itemize}
+    \item \textbf{Agent Classes}: Defines the behaviors of prey and predator entities.
+    \item \textbf{UI Elements}: Custom classes for buttons and sliders in the simulation interface.
+    \item \textbf{Simulation Logic}: Contains the rules for movement, reproduction, and energy dynamics.
+    \item \textbf{Data Visualization}: Live plotting of population changes and generation of phase diagrams.
+\end{itemize}
+
+\section{Simulation Results}
+
+\subsection{Interactive Simulation Output}
+Upon running the interactive simulation, users can observe:
+
+\begin{itemize}
+    \item Predators and prey moving on the grid.
+    \item Predators displaying their energy levels.
+    \item A brief "+Energy Gained" message when predators consume prey.
+    \item A live graph updating population counts over time.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{simulation_screenshot.png}
+    \caption{Screenshot of the Interactive Simulation Interface}
+    \label{fig:simulation_interface}
+\end{figure}
+
+\textit{(Replace "simulation\_screenshot.png" with the filename of your actual screenshot.)}
+
+\subsection{Phase Diagram Analysis}
+The phase diagram generated illustrates the outcomes based on different initial populations:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{phase_diagram.png}
+    \caption{Phase Diagram of Predator-Prey Simulation}
+    \label{fig:phase_diagram}
+\end{figure}
+
+\textit{(Replace "phase\_diagram.png" with the filename of your actual phase diagram image.)}
+
+\subsubsection{Interpretation of Results}
+The diagram displays:
+
+\begin{itemize}
+    \item \textbf{Red Region}: Scenarios where all prey died.
+    \item \textbf{Blue Region}: Scenarios where all predators died.
+    \item \textbf{Green Region}: Scenarios with long-term coexistence.
+\end{itemize}
+
+Contour lines highlight the boundaries between different outcome regions, indicating critical thresholds in initial population values.
+
+\section{Conclusion}
+The Predator-Prey Simulation project successfully demonstrates the impact of initial conditions on ecosystem dynamics. The interactive simulation provides valuable insights into predator-prey interactions, while the phase diagram offers a comprehensive overview of possible outcomes. This project serves as a foundation for further exploration and enhancement of ecological models.
+
+\section*{References}
+\addcontentsline{toc}{section}{References}
+\begin{itemize}
+    \item Lotka, A. J. (1925). \textit{Elements of Physical Biology}. Williams and Wilkins.
+    \item Volterra, V. (1926). Variations and fluctuations of the number of individuals in animal species living together. \textit{Journal fur die Reine und Angewandte Mathematik}, 163, 119–134.
+\end{itemize}
+
+\end{document}

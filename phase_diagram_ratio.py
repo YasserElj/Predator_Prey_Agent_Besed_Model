@@ -3,11 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 from tqdm import tqdm  # For progress bars
+import multiprocessing as mp  # For parallel processing
 
 # Simulation parameters
-GRID_SIZE = 15
+GRID_SIZE = 20
 MAX_STEPS = 1000
-NUM_SIMULATIONS = 100  # Number of simulations per initial condition
+NUM_SIMULATIONS = 20  # Reduced to manage computational load
 
 # Agent classes
 class Prey:
@@ -21,14 +22,15 @@ class Predator:
         self.y = y
         self.energy = 5
 
-def run_simulation(initial_prey, initial_predators):
+def run_simulation(args):
+    num_prey, num_predators = args
     grid = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
     prey_list = []
     predator_list = []
     step_count = 0
 
     # Initialize prey
-    for _ in range(initial_prey):
+    for _ in range(num_prey):
         while True:
             x, y = random.randint(0, GRID_SIZE-1), random.randint(0, GRID_SIZE-1)
             if grid[y][x] is None:
@@ -38,7 +40,7 @@ def run_simulation(initial_prey, initial_predators):
                 break
 
     # Initialize predators
-    for _ in range(initial_predators):
+    for _ in range(num_predators):
         while True:
             x, y = random.randint(0, GRID_SIZE-1), random.randint(0, GRID_SIZE-1)
             if grid[y][x] is None or isinstance(grid[y][x], Prey):
@@ -121,53 +123,93 @@ def get_neighbors(x, y):
             neighbors.append((nx, ny))
     return neighbors
 
-# Define the range of initial prey and predator populations
-prey_range = np.arange(10, 101, 10)
-predator_range = np.arange(10, 101, 10)
-X, Y = np.meshgrid(prey_range, predator_range)
+# Define the ranges for ratio and density
+ratio_values = np.arange(0, 10.05, 0.05)  # Ratios from 0 to 10, step of 0.05
+density_values = np.arange(0, 1.02, 0.02)  # Densities from 0 to 1.0, step of 0.02
+X, Y = np.meshgrid(ratio_values, density_values)
 Z = np.zeros_like(X)
 
 # Total number of initial conditions
-total_conditions = len(prey_range) * len(predator_range)
+total_conditions = len(ratio_values) * len(density_values)
 
-# Global progress bar for the entire simulation
-with tqdm(total=total_conditions, desc="Total Progress") as global_pbar:
-    for i in range(len(prey_range)):
-        for j in range(len(predator_range)):
-            initial_prey = int(prey_range[i])
-            initial_predators = int(predator_range[j])
-            outcomes = []
+# Calculate total grid cells
+total_grid_cells = GRID_SIZE * GRID_SIZE
 
-            # Local progress bar for simulations with the same initial values
-            desc = f"Prey: {initial_prey}, Predators: {initial_predators}"
-            with tqdm(total=NUM_SIMULATIONS, desc=desc, leave=False) as local_pbar:
-                for _ in range(NUM_SIMULATIONS):
-                    outcome = run_simulation(initial_prey, initial_predators)
-                    outcomes.append(outcome)
-                    local_pbar.update(1)
+# Prepare arguments for parallel processing
+simulation_args = []
+positions = []
 
-            # Get the most common outcome
-            most_common_outcome = Counter(outcomes).most_common(1)[0][0]
-            Z[j, i] = most_common_outcome  # Note: Z[j, i] because of how meshgrid works
+for i, ratio in enumerate(ratio_values):
+    for j, density in enumerate(density_values):
+        # Skip simulations where density is 0 (no agents)
+        if density == 0:
+            Z[j, i] = np.nan  # Mark as invalid
+            continue
 
-            global_pbar.update(1)
+        # Calculate total number of agents
+        N = int(density * total_grid_cells)
+        if N < 2:
+            N = 2  # Ensure at least one prey and one predator
 
-# Create a contour plot
-plt.figure(figsize=(8, 6))
-contour = plt.contourf(X, Y, Z, levels=[-0.5, 0.5, 1.5, 2.5], colors=['red', 'blue', 'green'], alpha=0.6)
-# plt.colorbar(ticks=[0, 1, 2], label='Simulation Outcome')
-plt.clim(-0.5, 2.5)
-plt.xlabel('Initial Prey Population')
-plt.ylabel('Initial Predator Population')
+        # Handle ratio = 0 separately to avoid division by zero
+        if ratio == 0:
+            num_prey = 0
+            num_predators = N
+        else:
+            num_prey = int((ratio / (ratio + 1)) * N)
+            num_predators = N - num_prey
+
+        # Ensure at least one prey and one predator
+        if num_prey == 0:
+            num_prey = 1
+            num_predators = N - 1
+        if num_predators == 0:
+            num_predators = 1
+            num_prey = N - 1
+
+        # Prepare arguments for simulations
+        for _ in range(NUM_SIMULATIONS):
+            simulation_args.append((num_prey, num_predators))
+            positions.append((j, i))  # To map results back to Z
+
+# Run simulations in parallel
+def worker(args):
+    num_prey, num_predators = args
+    outcome = run_simulation((num_prey, num_predators))
+    return outcome
+
+with mp.Pool() as pool:
+    # Use tqdm with map for progress bar
+    results = list(tqdm(pool.imap(worker, simulation_args), total=len(simulation_args), desc="Running simulations"))
+
+# Aggregate results
+outcomes_dict = {}
+for idx, outcome in enumerate(results):
+    position = positions[idx]
+    if position not in outcomes_dict:
+        outcomes_dict[position] = []
+    outcomes_dict[position].append(outcome)
+
+# Determine the most common outcome for each initial condition
+for position, outcomes in outcomes_dict.items():
+    most_common_outcome = Counter(outcomes).most_common(1)[0][0]
+    j, i = position
+    Z[j, i] = most_common_outcome
+
+# Create a smooth plot using imshow
+plt.figure(figsize=(10, 8))
+# Mask invalid values
+Z_masked = np.ma.masked_invalid(Z)
+extent = [ratio_values.min(), ratio_values.max(), density_values.min(), density_values.max()]
+plt.imshow(Z_masked, extent=extent, origin='lower', aspect='auto', cmap='viridis')
+
+# Set colorbar with custom ticks and labels
+cbar = plt.colorbar(ticks=[0, 1, 2])
+cbar.ax.set_yticklabels(['All Prey Died', 'All Predators Died', 'Coexistence'])
+
+plt.xlabel('Ratio (Prey / Predator)')
+plt.ylabel('Density (Agents per Grid Cell)')
 plt.title('Phase Diagram of Predator-Prey Simulation (Majority Outcome)')
-plt.grid(True)
-
-# Customize colorbar labels
-cbar = plt.colorbar()
-cbar.set_ticks([0, 1, 2])
-cbar.set_ticklabels(['All Prey Died', 'All Predators Died', 'Coexistence'])
-
-# Add contour lines
-plt.contour(X, Y, Z, levels=[0.5, 1.5], colors='black', linestyles='--')
-
+plt.grid(False)
+plt.savefig("plots/ratio_density.png")
 plt.show()
