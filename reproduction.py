@@ -7,26 +7,30 @@ import multiprocessing as mp  # For parallel processing
 
 # Simulation parameters
 GRID_SIZE = 20
-MAX_STEPS = 1000
-NUM_SIMULATIONS = 10  # Reduced to manage computational load
+MAX_STEPS = 100
+NUM_SIMULATIONS = 500  # Reduced to manage computational load
 
-# Reproduction parameters
-PREY_REPRODUCTION_THRESHOLD = 3  # Prey reproduces after 3 steps
-PREDATOR_REPRODUCTION_ENERGY = 15  # Energy level at which predator reproduces
+# Reproduction probabilities
+SHEEP_REPRODUCE = 0.04  # Probability of sheep reproducing each step
+WOLF_REPRODUCE = 0.05  # Probability of wolves reproducing each step
+
+# Energy parameters
+WOLF_GAIN_FROM_FOOD = 20  # Energy gained by wolves from eating prey
+WOLF_INITIAL_ENERGY = 10  # Initial energy for wolves
+WOLF_MOVE_COST = 1        # Energy cost per move for wolves
 
 # Agent classes
 class Prey:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.reproduction_counter = 0  # Added reproduction counter
+        # Sheep do not have energy in this model
 
 class Predator:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.energy = 5
-        self.reproduction_counter = 0  # Added reproduction counter (optional)
+        self.energy = WOLF_INITIAL_ENERGY  # Initial energy
 
 def run_simulation(args):
     num_prey, num_predators = args
@@ -82,15 +86,14 @@ def move_prey(grid, prey_list):
                 moved = True
                 break
         # Reproduction logic for prey
-        prey.reproduction_counter += 1
-        if prey.reproduction_counter >= PREY_REPRODUCTION_THRESHOLD:
-            random.shuffle(neighbors)  # Shuffle neighbors for reproduction
+        if random.random() < SHEEP_REPRODUCE:
+            # Reproduce
+            random.shuffle(neighbors)
             for nx, ny in neighbors:
                 if grid[ny][nx] is None:
                     new_prey = Prey(nx, ny)
                     prey_list.append(new_prey)
                     grid[ny][nx] = new_prey
-                    prey.reproduction_counter = 0  # Reset counter after reproduction
                     break
 
 def move_predators(grid, prey_list, predator_list):
@@ -113,29 +116,31 @@ def move_predators(grid, prey_list, predator_list):
             prey_list.remove(prey)
             grid[ny][nx] = predator
             predator.x, predator.y = nx, ny
-            predator.energy += 5
+            predator.energy += WOLF_GAIN_FROM_FOOD
             moved = True
         elif empty_neighbors:
             nx, ny = random.choice(empty_neighbors)
             grid[y][x] = None
             grid[ny][nx] = predator
             predator.x, predator.y = nx, ny
-            predator.energy -= 1
+            predator.energy -= WOLF_MOVE_COST
             moved = True
         else:
-            predator.energy -= 1
+            predator.energy -= WOLF_MOVE_COST
         if not moved:
-            predator.energy -= 1
+            predator.energy -= WOLF_MOVE_COST
         # Reproduction logic for predators
-        if predator.energy >= PREDATOR_REPRODUCTION_ENERGY:
-            random.shuffle(neighbors)  # Shuffle neighbors for reproduction
+        if random.random() < WOLF_REPRODUCE and predator.energy > 1:
+            # Reproduce
+            random.shuffle(neighbors)
             for nx, ny in neighbors:
                 if grid[ny][nx] is None:
                     new_predator = Predator(nx, ny)
                     predator_list.append(new_predator)
                     grid[ny][nx] = new_predator
-                    # Reduce energy after reproduction
-                    predator.energy = predator.energy // 2  # Split energy
+                    # Split energy between parent and offspring
+                    new_predator.energy = predator.energy // 2
+                    predator.energy = predator.energy // 2
                     break
         if predator.energy <= 0:
             grid[predator.y][predator.x] = None
@@ -153,8 +158,8 @@ def get_neighbors(x, y):
     return neighbors
 
 # Define the ranges for ratio and density
-ratio_values = np.arange(0.1, 10, 0.02)  # Ratios from 0.1 to 10, step of 0.02
-density_values = np.arange(0.01, 1, 0.01)  # Densities from 0.01 to 1.0, step of 0.01
+ratio_values = np.arange(0.1, 10, 0.5)  # Adjusted for computational efficiency
+density_values = np.arange(0.01, 1, 0.05)  # Adjusted for computational efficiency
 X, Y = np.meshgrid(ratio_values, density_values)
 Z = np.zeros_like(X)
 
@@ -235,5 +240,5 @@ plt.xlabel('Ratio (Prey / Predator)')
 plt.ylabel('Density (Agents per Grid Cell)')
 plt.title('Phase Diagram of Predator-Prey Simulation with Reproduction (Majority Outcome)')
 plt.grid(False)
-plt.savefig(f"plots/ratio_density_{NUM_SIMULATIONS}_with_reproduction.png")
+plt.savefig(f"plots/ratio_density_{NUM_SIMULATIONS}_with_reproduction_4.png")
 plt.show()
