@@ -169,5 +169,5 @@ cbar.set_ticklabels(['All Prey Died', 'All Predators Died', 'Coexistence'])
 
 # Add contour lines
 plt.contour(X, Y, Z, levels=[0.5, 1.5], colors='black', linestyles='--')
-
+plt.savefig("Old_phase_diagram.png")
 plt.show()

@@ -8,7 +8,7 @@ import multiprocessing as mp  # For parallel processing
 # Simulation parameters
 GRID_SIZE = 20
 MAX_STEPS = 1000
-NUM_SIMULATIONS = 20  # Reduced to manage computational load
+NUM_SIMULATIONS = 500  # Reduced to manage computational load
 
 # Agent classes
 class Prey:
@@ -124,8 +124,8 @@ def get_neighbors(x, y):
     return neighbors
 
 # Define the ranges for ratio and density
-ratio_values = np.arange(0, 10.05, 0.05)  # Ratios from 0 to 10, step of 0.05
-density_values = np.arange(0, 1.02, 0.02)  # Densities from 0 to 1.0, step of 0.02
+ratio_values = np.arange(0.1, 10, 0.02)  # Ratios from 0 to 10, step of 0.05
+density_values = np.arange(0.01, 1, 0.01)  # Densities from 0 to 1.0, step of 0.02
 X, Y = np.meshgrid(ratio_values, density_values)
 Z = np.zeros_like(X)
 
@@ -211,5 +211,5 @@ plt.xlabel('Ratio (Prey / Predator)')
 plt.ylabel('Density (Agents per Grid Cell)')
 plt.title('Phase Diagram of Predator-Prey Simulation (Majority Outcome)')
 plt.grid(False)
-plt.savefig("plots/ratio_density.png")
+plt.savefig(f"plots/ratio_density_{NUM_SIMULATIONS}_2.png")
 plt.show()
