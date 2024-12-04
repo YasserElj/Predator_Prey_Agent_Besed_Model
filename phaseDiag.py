@@ -5,9 +5,9 @@ from collections import Counter
 from tqdm import tqdm  # For progress bars
 
 # Simulation parameters
-GRID_SIZE = 15
+GRID_SIZE = 20
 MAX_STEPS = 1000
-NUM_SIMULATIONS = 100  # Number of simulations per initial condition
+NUM_SIMULATIONS = 1000  # Number of simulations per initial condition
 
 # Agent classes
 class Prey:
