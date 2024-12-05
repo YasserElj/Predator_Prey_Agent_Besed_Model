@@ -4,11 +4,13 @@ import matplotlib.pyplot as plt
 from collections import Counter
 from tqdm import tqdm  # For progress bars
 import multiprocessing as mp  # For parallel processing
+import os  # For checking file existence
+import pickle  # For saving and loading data
 
 # Simulation parameters
 GRID_SIZE = 20
 MAX_STEPS = 300
-NUM_SIMULATIONS = 50  # Reduced to manage computational load
+NUM_SIMULATIONS = 50  # Adjust as needed
 
 # Reproduction probabilities
 SHEEP_REPRODUCE = 0.15  # Probability of sheep reproducing each step
@@ -152,10 +154,18 @@ Z = np.zeros_like(X)
 # Total number of initial conditions
 total_conditions = len(ratio_values) * len(density_values)
 
-# Calculate total grid cells
+# Total grid cells
 total_grid_cells = GRID_SIZE * GRID_SIZE
 
-# Prepare arguments for parallel processing
+# Prepare or load outcomes dictionary
+outcomes_file = 'outcomes.pkl'
+if os.path.exists(outcomes_file):
+    with open(outcomes_file, 'rb') as f:
+        outcomes_dict = pickle.load(f)
+else:
+    outcomes_dict = {}
+
+# Prepare arguments for simulations
 simulation_args = []
 positions = []
 
@@ -182,10 +192,16 @@ for i, ratio in enumerate(ratio_values):
             num_predators = 1
             num_prey = N - 1
 
-        # Prepare arguments for simulations
-        for _ in range(NUM_SIMULATIONS):
+        position = (j, i)
+        simulations_done = len(outcomes_dict.get(position, []))
+        simulations_remaining = NUM_SIMULATIONS - simulations_done
+
+        if simulations_remaining <= 0:
+            continue  # Skip if we have already done enough simulations
+
+        for _ in range(simulations_remaining):
             simulation_args.append((num_prey, num_predators))
-            positions.append((j, i))  # To map results back to Z
+            positions.append(position)  # To map results back to Z
 
 # Run simulations in parallel
 def worker(args):
@@ -193,17 +209,23 @@ def worker(args):
     outcome = run_simulation((num_prey, num_predators))
     return outcome
 
-with mp.Pool() as pool:
-    # Use tqdm with map for progress bar
-    results = list(tqdm(pool.imap(worker, simulation_args), total=len(simulation_args), desc="Running simulations"))
+if simulation_args:  # Only proceed if there are simulations to run
+    with mp.Pool() as pool:
+        # Use tqdm with map for progress bar
+        results = list(tqdm(pool.imap(worker, simulation_args), total=len(simulation_args), desc="Running simulations"))
 
-# Aggregate results
-outcomes_dict = {}
-for idx, outcome in enumerate(results):
-    position = positions[idx]
-    if position not in outcomes_dict:
-        outcomes_dict[position] = []
-    outcomes_dict[position].append(outcome)
+    # Aggregate results
+    for idx, outcome in enumerate(results):
+        position = positions[idx]
+        if position not in outcomes_dict:
+            outcomes_dict[position] = []
+        outcomes_dict[position].append(outcome)
+
+    # Save updated outcomes_dict
+    with open(outcomes_file, 'wb') as f:
+        pickle.dump(outcomes_dict, f)
+else:
+    print("No simulations to run. Loading existing results.")
 
 # Determine the most common outcome for each initial condition
 for position, outcomes in outcomes_dict.items():
@@ -226,5 +248,5 @@ plt.xlabel('Ratio (Prey / Predator)')
 plt.ylabel('Density (Agents per Grid Cell)')
 plt.title('Phase Diagram of Predator-Prey Simulation with Reproduction (Majority Outcome)')
 plt.grid(False)
-plt.savefig(f"plots2/ratio_density_{NUM_SIMULATIONS}_with_reproduction.png")
+plt.savefig(f"plots2/ratio_density_{NUM_SIMULATIONS}_with_reproduction11.png")
 plt.show()

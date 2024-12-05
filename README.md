@@ -1,82 +1,62 @@
-# Predator-Prey Simulation Project
+# Predator-Prey Agent-Based Model
 
-## Overview
+This project simulates predator-prey dynamics using an agent-based modeling approach. The model explores how different initial conditions influence outcomes such as predator extinction, prey extinction, or coexistence. It includes various iterations that progressively refined the model to better understand the complex dynamics of ecosystems.
 
-Simulate predator-prey dynamics using a grid-based model:
+## Project Overview
 
-- **Interactive Simulation**: Adjust initial conditions and observe real-time interactions.
-- **Phase Diagram Generation**: Run multiple simulations to create a phase diagram of ecosystem outcomes.
+- **Authors**: Mohamed Kelai, Oussama Zaidi, Yasser El-jarida
+- **Supervisor**: Pr. Julien Randon Furling
+- **Course**: Mathematical Models of Complexity and Simulation at UM6P
 
-## Features
+## Models Implemented
 
-- **Real-Time Visualization**: Watch predators and prey interact on a grid.
-- **Customizable Parameters**: Set initial populations and simulation speed.
-- **Outcome Display**: View the simulation state at the end.
-- **Progress Tracking**: Monitor simulation progress with global and local progress bars.
-- **Phase Diagram**: Visualize different outcomes based on initial populations.
+### 1. Initial Visual Simulation
+The first version was built using Python with Pygame to observe population dynamics visually. This version allowed for manual configuration of prey and predator populations and displayed their interactions in real-time. However, it lacked scalability and computational efficiency for in-depth analysis.
 
-## Requirements
+### 2. Phase Diagram Using Initial Populations
+We expanded the model to analyze population outcomes based on different initial prey and predator population sizes. The model recorded outcomes such as predator extinction, prey extinction, or coexistence, and displayed them in a phase diagram.
 
-- **Python** 3.6 or higher
-- **Libraries**:
-  - `pygame`
-  - `numpy`
-  - `matplotlib`
-  - `tqdm`
+### 3. Ratio and Density-Based Phase Diagram
+The model was refined to use the ratio of prey to predators and the density of agents per grid cell as parameters. This approach provided a smoother representation of critical transitions between extinction and coexistence.
 
-Install libraries with:
+### 4. Prey Reproduction Mechanism
+We introduced prey reproduction to the model, giving each prey a probability of reproducing each simulation step. This addition was aimed at exploring whether prey reproduction could enhance the stability of the ecosystem and lead to more frequent coexistence scenarios.
 
-```bash
-pip install pygame numpy matplotlib tqdm
-```
+## Key Features
+- **Agent-Based Modeling**: Each prey and predator is represented as an individual agent interacting on a 20x20 grid.
+- **Dynamic Metrics**: Population ratios, densities, and prey reproduction are used to explore the stability of predator-prey interactions.
+- **Visualization**: Phase diagrams show critical transitions between predator extinction, prey extinction, and coexistence.
+- **Scalability**: Simulations were conducted using the Toubkal supercomputer, enabling detailed and high-resolution results.
 
-## Usage
-
-### Interactive Simulation
-
-1. **Run the script**:
-
-   ```bash
-   python predator_prey_simulation.py
+## Running the Simulation
+1. Clone the repository:
+   ```
+   git clone https://github.com/YasserElj/Predator_Prey_Agent_Besed_Model.git
+   ```
+2. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+3. Run the simulation:
+   ```
+   python main.py
    ```
 
-2. **Controls**:
-   - Use sliders to set initial prey and predator numbers.
-   - Click **Setup Simulation** to initialize.
-   - Click **Run Simulation** to start.
-   - Adjust **Sim Speed** during the simulation.
-   - Use **Pause/Resume** and **Reset** as needed.
+## Dependencies
+- Python 3.x
+- `matplotlib` for visualizations
+- `numpy` for numerical operations
+- `tqdm` for progress bars
+- `multiprocessing` for parallel simulations
 
-3. **Visualization**:
-   - Prey and predators move on the grid; predators display energy levels.
-   - "+Energy Gained" appears briefly when predators eat prey.
-   - A live graph shows population changes; the simulation state appears under the graph at the end.
-
-### Phase Diagram Generation
-
-1. **Run the script**:
-
-   ```bash
-   python predator_prey_phase_diagram.py
-   ```
-
-2. **Progress Monitoring**:
-   - **Global Progress Bar**: Tracks overall simulation progress.
-   - **Local Progress Bar**: Shows progress for each initial condition set.
-
-3. **Output**:
-   - Generates a phase diagram displaying outcome regions:
-     - **Red**: All prey died.
-     - **Blue**: All predators died.
-     - **Green**: Coexistence.
-
-## Customization
-
-- **Simulation Parameters**: Modify variables in the scripts to explore different scenarios.
-  - Adjust `NUM_SIMULATIONS`, initial population ranges, and other parameters.
-- **Performance**:
-  - Increasing `NUM_SIMULATIONS` improves accuracy but may increase computation time.
+## Results
+The final phase diagrams reveal critical insights into the dynamics of the predator-prey system. Introducing prey reproduction expanded the coexistence zones and provided a stabilizing effect, particularly in moderate density regions.
 
 ## License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-Open-source project available for educational and research purposes.
+## Acknowledgments
+- The Toubkal Supercomputer for enabling large-scale simulations.
+- Pr. Julien Randon Furling for his guidance and supervision.
+
+For more details, check the [Predator-Prey Simulation Report](https://github.com/YasserElj/Predator_Prey_Agent_Besed_Model/blob/main/report.pdf).
