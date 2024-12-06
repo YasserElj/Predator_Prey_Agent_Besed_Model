@@ -52,11 +52,24 @@ We introduced prey reproduction to the model, giving each prey a probability of 
 ## Results
 The final phase diagrams reveal critical insights into the dynamics of the predator-prey system. Introducing prey reproduction expanded the coexistence zones and provided a stabilizing effect, particularly in moderate density regions.
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Visuals
+### 1. Initial Predator-Prey Visual Simulation
+![Initial Visual Simulation](images/visual_interface.png)
+*Figure 1: Initial predator-prey visual simulation using Pygame.*
 
-## Acknowledgments
-- The Toubkal Supercomputer for enabling large-scale simulations.
-- Pr. Julien Randon Furling for his guidance and supervision.
+### 2. Phase Diagram Using Initial Populations
+![Phase Diagram Initial Populations](images/Old_phase_diagram.png)
+*Figure 2: Phase diagram of the simulation outcomes using initial populations as axes.*
 
-For more details, check the [Predator-Prey Simulation Report](https://github.com/YasserElj/Predator_Prey_Agent_Besed_Model/blob/main/report.pdf).
+### 3. Ratio and Density-Based Phase Diagram (Smaller Scale)
+![Smaller-Scale Phase Diagram](images/ratio_density_10.png)
+*Figure 3: Phase diagram from the smaller-scale simulation using prey/predator ratio and agent density.*
+
+### 4. Ratio and Density-Based Phase Diagram (Full Scale)
+![Full-Scale Phase Diagram](images/ratio_density_500_2.png)
+*Figure 4: Full-scale phase diagram of predator-prey simulation using prey/predator ratio and agent density as axes.*
+
+### 5. Phase Diagram with Prey Reproduction
+![Phase Diagram with Reproduction](images/ratio_density_reproduction.png)
+*Figure 5: Phase diagram of predator-prey simulation with prey reproduction.*
+
